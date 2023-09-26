@@ -1,13 +1,15 @@
 from json import JSONEncoder
 import json
 import logging
-
+import openai
 from langchain.vectorstores import Chroma
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.chat_models import ChatOpenAI
 from langchain.retrievers.multi_query import MultiQueryRetriever
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
+
+
 
 from dotenv import dotenv_values
 from story_query import StoryQuery
@@ -16,7 +18,7 @@ from story_query import StoryQuery
 
 
 API_KEY = dotenv_values(".env").get("OPEN_AI_API_KEY")
-
+openai.api_key = API_KEY
 
 logging.basicConfig()
 logging.getLogger("langchain.retrievers.multi_query").setLevel(logging.INFO)
@@ -28,14 +30,20 @@ class PageContent:
     """
     Encapsulates the content of a page
     """
-    def __init__(self, text):
+    def __init__(self, text, imageURL):
         self.text = text
+        self.imageURL = imageURL
+
+
 
 class Page(JSONEncoder):
     """Represents a page"""
     def __init__(self, content:PageContent, pageNo):
         self.content = content
         self.pageNo = pageNo
+
+
+    
 
     def default(self, o):
         return o.__dict__
@@ -110,22 +118,21 @@ class Katha:
         Populates self.pages
         """
         splitter ='\n\n'
-        self.pages = [
-            Page(
-                content=page,
+        for (i, text) in enumerate(list(filter(lambda x:x and x!=" ",self.story_text.split(splitter)))):
+            response = openai.Image.create(
+                prompt=f"A black and white children's book illustration for the following page: {text}",
+                n=1,
+                size="1024x1024"
+            )
+            print(response)
+            self.pages.append(Page(
+                content=PageContent((text), response['data'][0]['url']),
                 pageNo=(i+1)
-            ) for (i, page) in enumerate(
-                list(
-                    filter(lambda x:x and x!=" ",
-                        self.story_text.split(splitter))
-                    )
-                )
-        ]
+            ))
+                
 
 
-
-
-            
+   
 
 
 
