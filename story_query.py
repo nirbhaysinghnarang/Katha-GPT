@@ -2,7 +2,7 @@ from langchain.prompts import PromptTemplate
 from langchain.llms import OpenAI
 from dotenv import dotenv_values
 
-API_KEY = dotenv_values(".env").get("OPEN_AI_API_KEY")
+API_KEY = dotenv_values(".env").get("OPENAI_API_KEY")
 
 class StoryQuery:
     """

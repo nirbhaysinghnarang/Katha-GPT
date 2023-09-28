@@ -6,12 +6,8 @@ from dotenv import dotenv_values
 from page import Page
 from page_content import PageContent
 from story_config import StoryConfig
-
 API_KEY = dotenv_values(".env").get("OPENAI_API_KEY")
 openai.api_key = API_KEY
-
-logging.basicConfig()
-logging.getLogger("langchain.retrievers.multi_query").setLevel(logging.INFO)
 
 """Classes to represent and build a story"""
 
@@ -37,12 +33,12 @@ class Story:
         """
         Populates self.pages
         """
-        splitter ='\n'
-        for (i, text) in enumerate(list(filter(lambda x:x and x!=" ",self.config.text.split(splitter)))):
+        splitter ='\n\n'
+        for (i, text) in enumerate(list(filter(lambda x:x and x!=" ",self.build_story().split(splitter)))):
             response = openai.Image.create(
-                prompt=f"A black and white children's book illustration for the following page: {text}",
+                prompt=f"A {self.config.color} illustration for the following page from a story: {text}, {self.config.img_style}",
                 n=1,
-                size="1024x1024"
+                size="512x512"
             )
             self.pages.append(Page(
                 content=PageContent((text), response['data'][0]['url']),

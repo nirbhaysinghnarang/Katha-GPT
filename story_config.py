@@ -1,6 +1,5 @@
 from enum import Enum
 from langchain import PromptTemplate
-import time
 
 class AgeRange(Enum):
     """
@@ -18,30 +17,52 @@ class Language(Enum):
     HINDI = "Hindi"
 
 
+class ImageGenStyle(Enum):
+    """
+    Possible image generation styles for a story
+    """
+    HYPER = "Hyperrealistic"
+    WATER = "Watercolor"
+    COMIC = "Comic"
+
+class Color(Enum):
+    """
+    Possible color configs
+    """
+    BW  = "Black and White"
+    COLOR = "Color"
+
+
+class PageSz(Enum):
+    """
+    Possible page sizes (text length)
+    """
+    SM = "small" 
+    MD = "medium"
+    LG = "large"
+
 class StoryConfig:
     """
     Represents the configuration of a story.
     """
-    
-    def __init__(self, age:AgeRange, language:Language, text:str, num_pages):
+    def __init__(self, age:AgeRange, language:Language, text:str, img_style:ImageGenStyle, color:Color=Color.COLOR, sz:PageSz=PageSz.LG):
         self.age = age
         self.language = language
         self.text = text
-        self.num_pages = num_pages
-
-
-    def __str__(self):
-        return f"{self.age}_{self.language}_{str(time.time())[:5]}"
+        self.img_style = img_style
+        self.color = color
+        self.sz = sz
 
     def get_prompt(self):
         """
         Generates a prompt to build a story with this configuration
         """
         prompt = PromptTemplate.from_template("""
-            Can you convert the following text into a story in {language} consisting of a sequence of {num_pages} segments?
-            Separate each segment with two new lines. 
+            Can you convert the following text into a story in {language} consisting of a sequence of segments?
+            Separate each segment with two new lines. Do not include segment headers.
+            Make each segment {size} in size
             The target age for this story is {age} 
             {text}
         """)
-        return prompt.format(language=self.language, num_pages=self.num_pages, age=self.age, text=self.text,)
+        return prompt.format(language=self.language, age=self.age, text=self.text, size=self.sz)
          
