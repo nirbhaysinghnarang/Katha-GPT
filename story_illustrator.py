@@ -114,7 +114,6 @@ class StoryIllustrator:
         prompt = illustratorQuery.generatePrompt()
         print(f"Prompt:{prompt}")
         imgUrl = self.getImage(prompt)
-        print(imgUrl)
         self.store[pageNo] = imgUrl
 
     def populateStore(self):
@@ -127,4 +126,5 @@ class StoryIllustrator:
         >>> print(illustrator.store)
         """
         for n in range(len(self.pages)):
+            print(f"On page {n}/{len(self.pages)-1}")
             self.generateImage(n)

@@ -3,6 +3,8 @@ import openai
 from langchain.chat_models import ChatOpenAI
 from langchain import PromptTemplate
 from dotenv import dotenv_values
+from pathlib import Path
+import json
 
 from page import Page
 from page_content import PageContent
@@ -46,6 +48,7 @@ class Story:
             openai_api_key=API_KEY,
             temperature=0.0
         )
+        self.text = ""
 
     def build_story(self):
         """
@@ -75,3 +78,41 @@ class Story:
         """
         for (i, page) in enumerate(illustrator.store):
             self.pages[i].content.imageURL = illustrator.store[page]
+
+    def to_json(self):
+        """
+        Serialize the object to JSON.
+        """
+        return {
+            "config":self.config.to_json(),
+            "pages":[page.to_json() for page in self.pages],
+            
+        }
+
+    def save_json(self):
+        """
+        Serialize the object to a JSON file and save it in the 'story_jsons' directory.
+
+        This method converts the object's attributes to JSON format and saves it in a file
+        with a name derived from the StoryConfig attributes. If the 'story_jsons' directory
+        does not exist, it will be created.
+
+        Raises:
+            ValueError: If the JSON file with the same name already exists, indicating that
+                the story configuration has already been generated and saved.
+
+        Example usage:
+
+        >>> story_instance = YourClassName(...)  # Initialize your class
+        >>> story_instance.to_json()  # Save the story configuration as JSON
+        """
+        json_directory = Path.joinpath(Path.cwd(), "story_jsons")
+        if not json_directory.exists():
+            json_directory.mkdir(parents=True) 
+        story_name = f'{self.config.text_id}_{self.config.age}_{self.config.color}_{self.config.img_style}_{self.config.sz}'
+        story_path = Path.joinpath(json_directory, f"{story_name}.json")
+        if story_path.exists():
+            raise ValueError("Story configuration has already been generated and saved.")
+        story_path.touch()
+        story_json = json.dumps(self.to_json())
+        story_path.write_text(story_json, encoding="utf-8")

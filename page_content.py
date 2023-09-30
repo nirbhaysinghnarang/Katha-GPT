@@ -24,3 +24,13 @@ class PageContent:
         """
         self.text = text
         self.imageURL = imageURL
+
+    def to_json(self):
+        """
+        Serializes to json
+        """
+
+        return {
+            "text":self.text,
+            "imageURL":self.imageURL
+        }

@@ -30,3 +30,14 @@ class Page:
         """
         self.content = content
         self.pageNo = pageNo
+
+
+    def to_json(self):
+        """
+        Returns a json representation of the object
+        """
+
+        return {
+            "content":self.content.to_json(),
+            "pageNo":self.pageNo
+        }
