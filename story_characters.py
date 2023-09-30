@@ -54,6 +54,7 @@ class StoryCharacters:
         and generate a JSON that maps from each character in the story to a physical description that you come up with. 
         The description should be specific and just describe clothing, physical features, and facial features. 
         The description should not be sentences, just comma-separated adjectives.
+        For each character, also include a short description for eg. Indian warrior.
         In addition, come up with clothing for each character.
         """)
         formatted = prompt.format(story=self.story.text)

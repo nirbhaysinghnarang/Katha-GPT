@@ -72,7 +72,7 @@ class StoryIllustratorQuery:
         Do not make the prompt flowery or long. Describe the physical 
         characteristics using the json succintly. The resulting prompt should 
         not give directives, it should just describe the scene. It should also be two sentences
-        at most.
+        at most and should not include any narrative. Include the color and style at the end with commas.
         """)
 
         

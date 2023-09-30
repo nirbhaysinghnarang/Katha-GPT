@@ -3,12 +3,12 @@ from dotenv import dotenv_values
 from collections import defaultdict
 from story_illustrator_query import StoryIllustratorQuery
 import requests
-import openai
-
+import json
+import time
 
 # Load the OpenAI API key from the .env file
-API_KEY = dotenv_values(".env").get("OPENAI_API_KEY")
-openai.api_key = API_KEY
+API_KEY = dotenv_values(".env").get("MJ_API_KEY")
+
 
 class StoryIllustrator:
     """
@@ -44,6 +44,40 @@ class StoryIllustrator:
         self.pages = self.story.pages
         self.story_characters = story_characters
         self.store = defaultdict()
+        self.imagine_url = 'https://api.thenextleg.io/v2/imagine'
+        print(API_KEY)
+
+
+    def getMessageId(self, prompt):
+        payload = json.dumps({
+        "msg": prompt,
+        "ref": "",
+        "webhookOverride": "", 
+        "ignorePrefilter": "false"
+        })
+        headers = {
+        'Authorization': f'Bearer {API_KEY}',
+        'Content-Type': 'application/json'
+        }
+
+        return json.loads(requests.request("POST", self.imagine_url, headers=headers, data=payload).text)['messageId']
+
+    def getMessageUrl(self, messageId):
+        return  f"https://api.thenextleg.io/v2/message/{messageId}?expireMins=2"
+
+    def getImage(self, prompt):
+        messageId = self.getMessageId(prompt)
+        messageUrl = self.getMessageUrl(messageId)
+        headers = {
+        'Authorization': f'Bearer {API_KEY}',
+        }
+        response=json.loads(requests.request("GET", messageUrl, headers=headers).text)
+
+        while response['progress']!=100:
+            response = json.loads(requests.request("GET", messageUrl, headers=headers).text)
+            time.sleep(5)
+        return response['response']["imageUrls"][0]
+
 
     def getUrl(self, response):
         """
@@ -78,13 +112,10 @@ class StoryIllustrator:
 
         illustratorQuery = StoryIllustratorQuery(page, self.story_characters, self.config)
         prompt = illustratorQuery.generatePrompt()
-        print(prompt)
-        response = openai.Image.create(
-            prompt=prompt,
-            n=1,
-            size="512x512"
-        )
-        self.store[pageNo] = self.getUrl(response)
+        print(f"Prompt:{prompt}")
+        imgUrl = self.getImage(prompt)
+        print(imgUrl)
+        self.store[pageNo] = imgUrl
 
     def populateStore(self):
         """

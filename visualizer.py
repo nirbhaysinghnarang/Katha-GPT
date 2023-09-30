@@ -79,7 +79,7 @@ if submit and query:
     st.title("Generated Story")
     for (i,page) in enumerate(story.pages):
         st.write(f"Page {i+1}")
-        st.image(page.content.imageURL)
+        # st.image(page.content.imageURL)
         st.write(page.content.text)
         "---"
     st.title("Source")
