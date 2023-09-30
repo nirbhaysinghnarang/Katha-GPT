@@ -1,54 +1,77 @@
 import logging
 import openai
 from langchain.chat_models import ChatOpenAI
+from langchain import PromptTemplate
 from dotenv import dotenv_values
 
 from page import Page
 from page_content import PageContent
 from story_config import StoryConfig
+
 API_KEY = dotenv_values(".env").get("OPENAI_API_KEY")
 openai.api_key = API_KEY
 
-"""Classes to represent and build a story"""
-
 class Story:
     """
-    Represents a story
+    Represents a story.
+
+    This class is used to represent a story and includes methods for building the story,
+    creating pages, and populating images for each page.
+
+    Attributes:
+        config (StoryConfig): Configuration settings for generating the story.
+        pages (list): A list of Page objects representing the story's pages.
+        llm (ChatOpenAI): The language model used for generating the story.
+
+    Example usage:
+
+    >>> from story_config import StoryConfig
+    >>> config = StoryConfig(...)
+    >>> story_instance = Story(config)
+    >>> story_instance.build_story()
+    >>> story_instance.build_pages()
+    >>> print(story_instance.pages)
     """
-    def __init__(self, config:StoryConfig):
+
+    def __init__(self, config: StoryConfig):
+        """
+        Initialize a Story instance.
+
+        Args:
+            config (StoryConfig): Configuration settings for generating the story.
+        """
         self.config = config
         self.pages = []
         self.llm = ChatOpenAI(
             openai_api_key=API_KEY,
             temperature=0.0
         )
-       
+
     def build_story(self):
         """
-        Given a config, builds a story.
+        Build the story based on the provided configuration.
         """
-        return self.llm.predict(self.config.get_prompt())
+        self.text = self.llm.predict(self.config.get_prompt())
 
     def build_pages(self):
         """
-        Populates self.pages
+        Populate self.pages with story pages.
+
+        Each page is created based on the text generated for the story.
         """
-        splitter ='\n\n'
-        for (i, text) in enumerate(list(filter(lambda x:x and x!=" ",self.build_story().split(splitter)))):
-            response = openai.Image.create(
-                prompt=f"A {self.config.color} illustration for the following page from a story: {text}, {self.config.img_style}",
-                n=1,
-                size="512x512"
-            )
+        splitter = '\n\n'
+        for (i, text) in enumerate(list(filter(lambda x: x and x != " ", self.text.split(splitter)))):
             self.pages.append(Page(
-                content=PageContent((text), response['data'][0]['url']),
-                pageNo=(i+1)
+                content=PageContent((text), None),
+                pageNo=(i + 1)
             ))
-                
 
+    def populate_images(self, illustrator):
+        """
+        Populate images for each page in the story using an illustrator.
 
-   
-
-
-
-        
+        Args:
+            illustrator: An instance of StoryIllustrator used to fetch images.
+        """
+        for (i, page) in enumerate(illustrator.store):
+            self.pages[i].content.imageURL = illustrator.store[page]

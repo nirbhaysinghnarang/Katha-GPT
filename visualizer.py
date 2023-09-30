@@ -3,6 +3,8 @@ from story_retriever import StoryRetriever
 from story_config import StoryConfig
 from story import Story
 from story_config import ImageGenStyle
+from story_characters import StoryCharacters
+from story_illustrator import StoryIllustrator
 
 
 st.title('Katha GPT Visualizer')
@@ -68,6 +70,12 @@ if submit and query:
     story = Story(config=config)
     story.build_story()
     story.build_pages()
+    characters = StoryCharacters(story)
+    characters.fetchCharacters()
+    print(characters.json)
+    illustrator = StoryIllustrator(story, config, characters)
+    illustrator.populateStore()
+    story.populate_images(illustrator)
     st.title("Generated Story")
     for (i,page) in enumerate(story.pages):
         st.write(f"Page {i+1}")
