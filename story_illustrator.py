@@ -157,9 +157,8 @@ class StoryIllustrator:
         illustratorQuery = StoryIllustratorQuery(page, self.story_characters, self.config)
 
         prompt = illustratorQuery.generatePrompt()
-        print(prompt)
-        # imgUrl = self.getImage(prompt)
-        # self.store[pageNo] = imgUrl
+        imgUrl = self.getImage(prompt)
+        self.store[pageNo] = imgUrl
 
     def populateStore(self):
         """

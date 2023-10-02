@@ -183,11 +183,11 @@ class StoryCharacters:
         for character in self.json:
             if character in self.character_map:
                 print(f"{character} cached...fetching resemblance from memory.")
-                self.characterImages[character.lower()] = self.character_map[character.lower]
+                self.characterImages[character] = self.character_map[character]
             else:
                 print(f"{character} not seen before...generating resemblance.")
-                self.characterImages[character.lower()] = self._generateCharacterFace(character)
-                self.character_map[character.lower()] = self.characterImages[character]
+                self.characterImages[character] = self._generateCharacterFace(character)
+                self.character_map[character] = self.characterImages[character]
         print(f'New character map:{self.character_map}')
         self.character_file.write("") #flush existing contents
         #overwrite with new contents

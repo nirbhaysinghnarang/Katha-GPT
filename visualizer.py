@@ -73,18 +73,20 @@ if submit and query:
     story.build_story()
     logging.info(story.text)
     story.build_pages()
+    story.pages = story.pages[:5]
     characters = StoryCharacters(story, config=config)
     characters.fetchCharacters()
     characters.generateCharacterFaces()
     illustrator = StoryIllustrator(story, config, characters)
     illustrator.populateStore()
+    print(illustrator.store)
     story.populate_images(illustrator)
     logging.info("Finished generating and populating images...rendering.\n\n\n")
     story.save_json()
     st.title("Generated Story")
     for (i,page) in enumerate(story.pages):
         st.write(f"Page {i+1}")
-        # st.image(page.content.imageURL)
+        st.image(page.content.imageURL)
         st.write(page.content.text)
         "---"
     st.title("Source")
