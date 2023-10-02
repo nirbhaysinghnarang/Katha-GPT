@@ -9,6 +9,7 @@ import time
 # Load the OpenAI API key from the .env file
 API_KEY = dotenv_values(".env").get("MJ_API_KEY")
 
+#TODO: Refactor Midjourney Client in external class to reduce code duplication
 
 class StoryIllustrator:
     """
@@ -45,10 +46,23 @@ class StoryIllustrator:
         self.story_characters = story_characters
         self.store = defaultdict()
         self.imagine_url = 'https://api.thenextleg.io/v2/imagine'
-        print(API_KEY)
 
 
     def getMessageId(self, prompt):
+        """
+        Get a message ID from the NextLeg API for a given prompt.
+
+        Args:
+            prompt (str): The prompt to send to the API.
+
+        Returns:
+            str: The message ID received from the API.
+
+        Example usage:
+
+        >>> message_id = self.getMessageId("Generate an illustration for a forest scene.")
+        >>> print(message_id)
+        """
         payload = json.dumps({
         "msg": prompt,
         "ref": "",
@@ -63,9 +77,39 @@ class StoryIllustrator:
         return json.loads(requests.request("POST", self.imagine_url, headers=headers, data=payload).text)['messageId']
 
     def getMessageUrl(self, messageId):
+        """
+        Get the message URL for a given message ID.
+
+        Args:
+            messageId (str): The message ID for which to get the URL.
+
+        Returns:
+            str: The message URL.
+
+        Example usage:
+
+        >>> message_id = "12345"  # Replace with an actual message ID
+        >>> message_url = self.getMessageUrl(message_id)
+        >>> print(message_url)
+        """
         return  f"https://api.thenextleg.io/v2/message/{messageId}?expireMins=2"
 
     def getImage(self, prompt):
+        """
+        Get an image URL generated from a given prompt.
+
+        Args:
+            prompt (str): The prompt to generate the image from.
+
+        Returns:
+            str: The URL of the generated image.
+
+        Example usage:
+
+        >>> prompt = "Generate an illustration of a castle at night."
+        >>> image_url = self.getImage(prompt)
+        >>> print(image_url)
+        """
         messageId = self.getMessageId(prompt)
         messageUrl = self.getMessageUrl(messageId)
         headers = {
@@ -111,10 +155,11 @@ class StoryIllustrator:
         page = self.pages[pageNo]
 
         illustratorQuery = StoryIllustratorQuery(page, self.story_characters, self.config)
+
         prompt = illustratorQuery.generatePrompt()
-        print(f"Prompt:{prompt}")
-        imgUrl = self.getImage(prompt)
-        self.store[pageNo] = imgUrl
+        print(prompt)
+        # imgUrl = self.getImage(prompt)
+        # self.store[pageNo] = imgUrl
 
     def populateStore(self):
         """

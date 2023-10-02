@@ -33,9 +33,9 @@ language = st.sidebar.radio(
 img_gen_style = st.sidebar.radio(
     "Image Generation",
     options=[
-        "Hyperrealistic",
-        "Watercolor",
-        "Comic",
+        "HYPER",
+        "WATER",
+        "COMIC",
     ]
 )
 
@@ -65,17 +65,17 @@ if submit and query:
 	    age,
 	    language, 
 	    most_relevant_content, 
-	    img_gen_style,
-        color,
+	    "COMIC", #stick to only comic style.
+        "Color", #and only in color
         size
 	)
     story = Story(config=config)
     story.build_story()
     logging.info(story.text)
     story.build_pages()
-    story.pages = [story.pages[0]]
-    characters = StoryCharacters(story)
+    characters = StoryCharacters(story, config=config)
     characters.fetchCharacters()
+    characters.generateCharacterFaces()
     illustrator = StoryIllustrator(story, config, characters)
     illustrator.populateStore()
     story.populate_images(illustrator)
@@ -84,7 +84,7 @@ if submit and query:
     st.title("Generated Story")
     for (i,page) in enumerate(story.pages):
         st.write(f"Page {i+1}")
-        st.image(page.content.imageURL)
+        # st.image(page.content.imageURL)
         st.write(page.content.text)
         "---"
     st.title("Source")

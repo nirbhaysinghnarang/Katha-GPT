@@ -2,7 +2,7 @@ from story_characters import StoryCharacters
 from story_config import StoryConfig
 from page import Page
 from langchain import PromptTemplate
-
+from story_config import ImageGenStyle
 from langchain.chat_models import ChatOpenAI
 from dotenv import dotenv_values
 
@@ -68,18 +68,17 @@ class StoryIllustratorQuery:
         descriptions of characters in the story and output a prompt that will be 
         fed to an image generator such as DALL-E to generate an image for the scene. 
         Here is the page {page} and here is the JSON {json}. 
-        The image should be {color} and in this style {style}.
-        Do not make the prompt flowery or long. Describe the physical 
+        The image should be {color} and in this style {style}.Describe the physical 
         characteristics using the json succintly. The resulting prompt should 
         not give directives, it should just describe the scene. It should also be two sentences
         at most and should not include any narrative. Include the color and style at the end with commas.
         """)
-
+        print(self.config)
         
         formatted = prompt.format(
             page=self.page.content.text, 
             json=self.story_characters.json,
             color=self.config.color,
-            style=self.config.img_style
+            style=ImageGenStyle[self.config.img_style].value
         )
         return self.llm.predict(formatted)

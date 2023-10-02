@@ -49,6 +49,8 @@ class Story:
             temperature=0.0
         )
         self.text = ""
+        self.name =  f'{self.config.text_id}_{self.config.age}_{self.config.color}_{self.config.img_style}_{self.config.sz}'
+
 
     def build_story(self):
         """
@@ -109,10 +111,9 @@ class Story:
         json_directory = Path.joinpath(Path.cwd(), "story_jsons")
         if not json_directory.exists():
             json_directory.mkdir(parents=True) 
-        story_name = f'{self.config.text_id}_{self.config.age}_{self.config.color}_{self.config.img_style}_{self.config.sz}'
-        story_path = Path.joinpath(json_directory, f"{story_name}.json")
-        if story_path.exists():
-            raise ValueError("Story configuration has already been generated and saved.")
+        story_path = Path.joinpath(json_directory, f"{self.name}.json")
+        # if story_path.exists():
+        #     raise ValueError("Story configuration has already been generated and saved.")
         story_path.touch()
         story_json = json.dumps(self.to_json())
         story_path.write_text(story_json, encoding="utf-8")
